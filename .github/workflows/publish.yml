@@ -31,10 +31,15 @@ jobs:
       - name: Test
         run: node bin/vsp-porto.js --help
         
-      - name: Publish to GitHub Packages
-        run: npm publish --registry https://npm.pkg.github.com
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "@vspatabuga:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=$NODE_AUTH_TOKEN" >> ~/.npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Publish to GitHub Packages
+        run: npm publish
 
   release:
     needs: build
