@@ -3,7 +3,7 @@ import { checkDocker, isRunning, stopSimulation } from '../lib/docker.js';
 import { logger } from '../lib/logger.js';
 
 export async function stopCommand(name: string): Promise<void> {
-  if (!checkDocker()) {
+  if (!(await checkDocker())) {
     logger.error('Docker is not running.');
     process.exit(1);
   }

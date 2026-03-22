@@ -3,11 +3,12 @@ import { promisify } from 'util';
 import { getPackage } from '../lib/packages.js';
 import { checkDocker, isRunning } from '../lib/docker.js';
 import { logger } from '../lib/logger.js';
+import { isRepoInstalled } from '../lib/setup.js';
 
 const execAsync = promisify(exec);
 
 export async function startCommand(name: string): Promise<void> {
-  if (!checkDocker()) {
+  if (!(await checkDocker())) {
     logger.error('Docker is not running. Please start Docker first.');
     process.exit(1);
   }
@@ -15,6 +16,12 @@ export async function startCommand(name: string): Promise<void> {
   const pkg = getPackage(name);
   if (!pkg) {
     logger.error(`Package '${name}' not found. Run 'vsp-porto list' for available packages.`);
+    process.exit(1);
+  }
+
+  const installed = await isRepoInstalled(pkg.name);
+  if (!installed) {
+    logger.error(`${pkg.displayName} is not installed. Run 'vsp-porto install ${pkg.name}' first.`);
     process.exit(1);
   }
 
@@ -26,7 +33,6 @@ export async function startCommand(name: string): Promise<void> {
   }
 
   logger.info(`Starting ${pkg.displayName} simulation...`);
-  logger.info('Note: Run "vsp-porto install ' + pkg.name + '" first if not installed.');
   
   try {
     await execAsync(`docker compose -p vsp-${pkg.name} up -d`, {

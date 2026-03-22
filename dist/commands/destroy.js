@@ -5,7 +5,7 @@ import { checkDocker, destroySimulation } from '../lib/docker.js';
 import { logger } from '../lib/logger.js';
 const execAsync = promisify(exec);
 export async function destroyCommand(name) {
-    if (!checkDocker()) {
+    if (!(await checkDocker())) {
         logger.error('Docker is not running.');
         process.exit(1);
     }

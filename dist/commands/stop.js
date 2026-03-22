@@ -2,7 +2,7 @@ import { getPackage } from '../lib/packages.js';
 import { checkDocker, isRunning, stopSimulation } from '../lib/docker.js';
 import { logger } from '../lib/logger.js';
 export async function stopCommand(name) {
-    if (!checkDocker()) {
+    if (!(await checkDocker())) {
         logger.error('Docker is not running.');
         process.exit(1);
     }

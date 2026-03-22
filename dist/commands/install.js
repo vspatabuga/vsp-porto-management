@@ -1,13 +1,11 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import { PACKAGES, getPackage } from '../lib/packages.js';
 import { logger } from '../lib/logger.js';
-const execAsync = promisify(exec);
+import { setupLocalRepo } from '../lib/setup.js';
 export async function installCommand(packageName) {
     if (!packageName) {
         logger.info('Installing all packages...');
         for (const pkg of PACKAGES) {
-            await installPackage(pkg.name);
+            await installPackage(pkg);
         }
         return;
     }
@@ -16,19 +14,16 @@ export async function installCommand(packageName) {
         logger.error(`Package '${packageName}' not found. Run 'vsp-porto list' for available packages.`);
         process.exit(1);
     }
-    await installPackage(pkg.name);
+    await installPackage(pkg);
 }
-async function installPackage(name) {
-    const packageName = `@vspatabuga/porto-${name}`;
+async function installPackage(pkg) {
     try {
-        logger.info(`Installing ${packageName}...`);
-        await execAsync(`npm install -g ${packageName}`, {
-            env: { ...process.env, npm_config_registry: 'https://npm.pkg.github.com' }
-        });
-        logger.success(`${packageName} installed successfully`);
+        logger.info(`Installing ${pkg.displayName}...`);
+        await setupLocalRepo(pkg.repo, pkg.name);
+        logger.success(`${pkg.displayName} installed successfully`);
     }
     catch (error) {
-        logger.error(`Failed to install ${packageName}`);
+        logger.error(`Failed to install ${pkg.displayName}`);
         console.error(error);
         process.exit(1);
     }
