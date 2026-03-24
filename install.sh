@@ -60,19 +60,34 @@ echo -e "${GREEN}✓${NC} Docker"
 
 echo -e "\n${YELLOW}>> Installing @vspatabuga/porto...${NC}"
 
-# Create temporary npmrc for GitHub Packages scoped install
-NPMRC_TEMP=$(mktemp)
-cat > "$NPMRC_TEMP" << 'NPMEOF'
-@vspatabuga:registry=https://npm.pkg.github.com
-NPMEOF
+# Create temporary directory
+INSTALL_DIR=$(mktemp -d)
+cd "$INSTALL_DIR"
 
-# Install with scoped registry
-npm install -g @vspatabuga/porto --registry https://npm.pkg.github.com --userconfig="$NPMRC_TEMP" || \
-npm install -g @vspatabuga/porto
+# Download package tarball from GitHub Packages
+echo "Downloading package..."
+TARBALL="@vspatabuga/porto-$(date +%s).tgz"
+npm pack @vspatabuga/porto --registry https://npm.pkg.github.com -o "$TARBALL" 2>/dev/null || {
+    echo -e "${RED}✗ Failed to download package${NC}"
+    exit 1
+}
 
-rm -f "$NPMRC_TEMP"
+# Extract package
+tar -xzf "$TARBALL"
+rm "$TARBALL"
 
-if [ $? -eq 0 ]; then
+# Install dependencies from npmjs.org (not GitHub Packages)
+echo "Installing dependencies..."
+cd package
+npm install --registry https://registry.npmjs.org 2>/dev/null || npm install
+
+# Link to global node_modules
+npm link
+
+cd /tmp
+rm -rf "$INSTALL_DIR"
+
+if command -v vsp-porto &> /dev/null; then
     echo -e "\n${GREEN}✓ Installation successful!${NC}"
     echo ""
     echo -e "Next steps:"
