@@ -3,14 +3,15 @@
   "version": "2.0.1",
   "description": "VSP Portfolio Simulation Manager - Experience Sovereign Systems Locally",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/cli.cjs",
   "bin": {
-    "vsp-porto": "./bin/vsp-porto.js"
+    "vsp-porto": "./bin/vsp-porto.cjs"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run bundle",
+    "bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.cjs --format=cjs --external:fs --external:child_process --external:path --external:util --external:os --external:process --external:dockerode",
     "dev": "tsx src/cli.ts",
-    "start": "node bin/vsp-porto.js",
+    "start": "node dist/cli.cjs",
     "clean": "rm -rf dist"
   },
   "keywords": [
@@ -39,6 +40,7 @@
     "@types/dockerode": "^3.3.31",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^22.13.10",
+    "esbuild": "^0.27.4",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   },
