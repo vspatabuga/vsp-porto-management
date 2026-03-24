@@ -31,49 +31,42 @@ async function installPackage(pkg) {
     try {
         logger.info(`Installing ${pkg.displayName}...`);
         logger.muted(`Package: ${pkg.npmPackage}`);
-        // Create a temporary directory for npm install
-        const tempDir = `/tmp/vsp-${pkg.name}-temp`;
-        // Clean up any existing temp directory
-        await execAsync(`rm -rf "${tempDir}"`);
         // Create package directory for npm
         const pkgDir = `/tmp/vsp-${pkg.name}-package`;
         await execAsync(`rm -rf "${pkgDir}" && mkdir -p "${pkgDir}"`);
-        // Create a minimal package.json for the package
-        await execAsync(`cat > "${pkgDir}/package.json" << 'EOF'
-{
-  "name": "${pkg.npmPackage}",
-  "version": "1.0.0",
-  "private": true
-}
-EOF`);
-        // Set up npmrc for GitHub Packages
-        const npmrcPath = `${pkgDir}/.npmrc`;
-        await execAsync(`cat > "${npmrcPath}" << 'EOF'
-@vspatabuga:registry=${GITHUB_PACKAGES_REGISTRY}
-EOF`);
-        // Try to download from GitHub Packages
+        // Try to download from GitHub Packages first
         logger.info('Attempting to download from GitHub Packages...');
+        let useGitClone = true;
         try {
-            // Try npm pack first to get the tarball
-            const tarballPath = `/tmp/${pkg.name}-${Date.now()}.tgz`;
-            // Set npm config for GitHub Packages
-            const npmConfig = execAsync(`cd "${pkgDir}" && npm pack ${pkg.npmPackage} --registry ${GITHUB_PACKAGES_REGISTRY} 2>&1`, {
+            // Try npm pack to get the tarball
+            const { stdout } = await execAsync(`cd "${pkgDir}" && npm pack ${pkg.npmPackage}@latest --registry ${GITHUB_PACKAGES_REGISTRY} 2>&1`, {
                 env: {
                     ...process.env,
                     npm_config_registry: GITHUB_PACKAGES_REGISTRY
                 }
             });
-            // For now, if npm pack fails, we'll fall back to git clone
-            // This is a workaround - in production, packages should be published first
-            logger.warning('GitHub Packages download not available. Falling back to GitHub clone...');
+            // Extract tarball name from output
+            const tarballName = stdout.trim().split('\n').pop();
+            if (tarballName && tarballName.endsWith('.tgz')) {
+                logger.muted(`Downloaded: ${tarballName}`);
+                useGitClone = false;
+            }
+        }
+        catch (error) {
+            logger.warning('npm pack failed. Will use GitHub clone as fallback...');
+        }
+        if (useGitClone) {
             await fallbackGitClone(pkg);
         }
-        catch {
-            logger.warning('npm pack failed. Using GitHub clone as fallback...');
-            await fallbackGitClone(pkg);
+        else {
+            // Extract and setup from tarball
+            const simPath = getSimulationPath(pkg.name);
+            await execAsync(`rm -rf "${simPath}" && mkdir -p "${simPath}"`);
+            await execAsync(`cd "${pkgDir}" && tar -xzf *.tgz -C "${simPath}" --strip-components=1`);
+            logger.muted(`Extracted to: ${simPath}`);
         }
         // Clean up temp directories
-        await execAsync(`rm -rf "${tempDir}" "${pkgDir}"`);
+        await execAsync(`rm -rf "${pkgDir}"`);
         logger.success(`${pkg.displayName} installed successfully`);
         logger.info(`Run 'vsp-porto start ${pkg.name}' to start the simulation.`);
     }
