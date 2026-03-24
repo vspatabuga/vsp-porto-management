@@ -60,8 +60,17 @@ echo -e "${GREEN}✓${NC} Docker"
 
 echo -e "\n${YELLOW}>> Installing @vspatabuga/porto...${NC}"
 
-npm install -g @vspatabuga/porto --registry https://npm.pkg.github.com 2>/dev/null || \
+# Create temporary npmrc for GitHub Packages scoped install
+NPMRC_TEMP=$(mktemp)
+cat > "$NPMRC_TEMP" << 'NPMEOF'
+@vspatabuga:registry=https://npm.pkg.github.com
+NPMEOF
+
+# Install with scoped registry
+npm install -g @vspatabuga/porto --registry https://npm.pkg.github.com --userconfig="$NPMRC_TEMP" || \
 npm install -g @vspatabuga/porto
+
+rm -f "$NPMRC_TEMP"
 
 if [ $? -eq 0 ]; then
     echo -e "\n${GREEN}✓ Installation successful!${NC}"
