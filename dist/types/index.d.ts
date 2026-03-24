@@ -4,8 +4,11 @@ export interface Package {
     description: string;
     port: number;
     repo: string;
+    npmPackage: string;
+    githubUrl: string;
     installed: boolean;
     status: 'stopped' | 'running' | 'not-installed';
+    defaultPort: number;
 }
 export interface Config {
     version: string;
@@ -18,5 +21,11 @@ export interface DockerContainer {
     name: string;
     status: string;
     ports: string[];
+}
+export interface SimulationInfo {
+    name: string;
+    path: string;
+    port: number;
+    npmPackage: string;
 }
 //# sourceMappingURL=index.d.ts.map
