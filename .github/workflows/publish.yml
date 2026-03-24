@@ -29,7 +29,7 @@ jobs:
         run: npm run build
         
       - name: Test
-        run: node bin/vsp-porto.js --help
+        run: node bin/vsp-porto.cjs --help
         
       - name: Configure npm for GitHub Packages
         run: |
