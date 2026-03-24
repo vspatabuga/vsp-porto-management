@@ -12,7 +12,10 @@ export async function checkDocker() {
 }
 export async function getContainers(name) {
     const allContainers = await docker.listContainers({ all: true });
-    return allContainers.filter(c => c.Names.some(n => n.includes(`vsp-${name}`)));
+    // Container names use underscores, not hyphens
+    // e.g., "zero-trust" becomes "vsp_zero_trust_web"
+    const nameWithUnderscores = name.replace(/-/g, '_');
+    return allContainers.filter(c => c.Names.some(n => n.includes(`vsp_${nameWithUnderscores}`)));
 }
 export async function isRunning(name) {
     const containers = await getContainers(name);
@@ -64,6 +67,8 @@ export async function destroySimulation(name) {
     }
 }
 export function getContainerName(name, suffix) {
-    return `vsp-${name}-${suffix}`;
+    // Container names use underscores
+    const nameWithUnderscores = name.replace(/-/g, '_');
+    return `vsp_${nameWithUnderscores}_${suffix}`;
 }
 //# sourceMappingURL=docker.js.map

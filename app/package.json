@@ -1,0 +1,58 @@
+{
+  "name": "@vspatabuga/porto",
+  "version": "2.0.8",
+  "description": "VSP Portfolio Simulation Manager - Experience Sovereign Systems Locally",
+  "type": "module",
+  "main": "./dist/cli.cjs",
+  "bin": {
+    "vsp-porto": "./bin/vsp-porto.cjs"
+  },
+  "scripts": {
+    "build": "tsc && npm run bundle",
+    "bundle": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.cjs --format=cjs --external:fs --external:child_process --external:path --external:util --external:os --external:process --external:dockerode",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.cjs",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "vsp",
+    "portfolio",
+    "simulation",
+    "docker",
+    "sovereign-systems"
+  ],
+  "author": "VSP (Virgiawan Sagarmata Patabuga)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vspatabuga/vsp-porto-management.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "install.sh"
+  ],
+  "dependencies": {
+    "dockerode": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.31",
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^22.13.10",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "esbuild": "^0.27.4",
+    "inquirer": "^12.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

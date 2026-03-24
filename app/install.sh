@@ -67,7 +67,7 @@ cd "$INSTALL_DIR"
 # Download package tarball from GitHub Packages
 echo "Downloading package..."
 TARBALL="@vspatabuga/porto-$(date +%s).tgz"
-npm pack @vspatabuga/porto -o "$TARBALL" --registry https://npm.pkg.github.com 2>&1 | grep -v "^npm" || {
+npm pack @vspatabuga/porto --registry https://npm.pkg.github.com -o "$TARBALL" 2>/dev/null || {
     echo -e "${RED}✗ Failed to download package${NC}"
     exit 1
 }
@@ -76,14 +76,10 @@ npm pack @vspatabuga/porto -o "$TARBALL" --registry https://npm.pkg.github.com 2
 tar -xzf "$TARBALL"
 rm "$TARBALL"
 
-# Install dependencies from npmjs.org
-# Create local .npmrc to override global settings
+# Install dependencies from npmjs.org (not GitHub Packages)
 echo "Installing dependencies..."
 cd package
-cat > .npmrc << 'EOF'
-registry=https://registry.npmjs.org/
-EOF
-npm install 2>&1 | grep -v "^npm"
+npm install --registry https://registry.npmjs.org 2>/dev/null || npm install
 
 # Link to global node_modules
 npm link
