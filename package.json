@@ -30,12 +30,15 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "dependencies": {
-    "chalk": "^5.3.0",
-    "commander": "^12.1.0",
-    "dockerode": "^4.0.2",
-    "inquirer": "^12.5.0"
-  },
+  "files": [
+    "dist/",
+    "bin/",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "install.sh"
+  ],
+  "dependencies": {},
   "devDependencies": {
     "@types/dockerode": "^3.3.31",
     "@types/inquirer": "^9.0.7",
