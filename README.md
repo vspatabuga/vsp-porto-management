@@ -56,6 +56,12 @@ vsp-porto destroy kalpataru
 | `vsp-porto stop <pkg>` | Stop simulation |
 | `vsp-porto destroy <pkg>` | Remove simulation |
 
+## Security & Compliance
+
+- Dependabot scans `package-lock.json` weekly; merge official dependency patches promptly.
+- Do not commit secrets (`.env`, `.log`, `node_modules`, `dist`).
+- Report vulnerabilities via GitHub Issue with label `security` or email `sc@vspatabuga.io`.
+
 ## License
 
-MIT © VSP (Virgiawan Sagarmata Patabuga)
+Apache License 2.0 © 2026 Virgiawan Sagarmata Patabuga.
